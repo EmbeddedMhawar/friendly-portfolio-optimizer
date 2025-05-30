@@ -106,7 +106,9 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, isL
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 dark:border-slate-700/20 dark:shadow-indigo-500/10 dark:shadow-2xl">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 dark:drop-shadow-[0_0_8px_rgba(99,102,241,0.3)]">Allocation des Actifs</h3>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 dark:drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] mb-4">
+            Allocation des Actifs
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -118,6 +120,11 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, isL
                   fill="#8884d8"
                   dataKey="weight"
                   label={({ asset, weight }) => `${asset}: ${(weight * 100).toFixed(1)}%`}
+                  labelStyle={{
+                    fill: 'var(--text-color)',
+                    fontSize: '12px',
+                    filter: 'var(--glow-filter)'
+                  }}
                 >
                   {results.weights.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -129,28 +136,47 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, isL
                     backgroundColor: 'rgba(15, 23, 42, 0.9)',
                     border: '1px solid rgba(99, 102, 241, 0.3)',
                     borderRadius: '8px',
-                    color: '#e2e8f0'
+                    color: '#e2e8f0',
+                    boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)'
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <style jsx global>{`
+            .dark [data-chart] {
+              --text-color: #e2e8f0;
+              --glow-filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+            }
+            [data-chart] {
+              --text-color: #334155;
+              --glow-filter: none;
+            }
+          `}</style>
         </div>
 
         {/* Bar Chart */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 dark:border-slate-700/20 dark:shadow-indigo-500/10 dark:shadow-2xl">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 dark:drop-shadow-[0_0_8px_rgba(99,102,241,0.3)]">Poids par Actif</h3>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 dark:drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] mb-4">
+            Poids par Actif
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={results.weights}>
                 <XAxis 
                   dataKey="asset" 
-                  tick={{ fill: '#64748b' }}
+                  tick={{ 
+                    fill: '#64748b',
+                    filter: 'var(--axis-glow)'
+                  }}
                   className="dark:fill-slate-300"
                 />
                 <YAxis 
                   tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} 
-                  tick={{ fill: '#64748b' }}
+                  tick={{ 
+                    fill: '#64748b',
+                    filter: 'var(--axis-glow)'
+                  }}
                   className="dark:fill-slate-300"
                 />
                 <Tooltip 
@@ -159,10 +185,18 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, isL
                     backgroundColor: 'rgba(15, 23, 42, 0.9)',
                     border: '1px solid rgba(99, 102, 241, 0.3)',
                     borderRadius: '8px',
-                    color: '#e2e8f0'
+                    color: '#e2e8f0',
+                    boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)'
                   }}
                 />
-                <Bar dataKey="weight" fill="url(#gradient)" radius={[4, 4, 0, 0]} />
+                <Bar 
+                  dataKey="weight" 
+                  fill="url(#gradient)" 
+                  radius={[4, 4, 0, 0]}
+                  style={{
+                    filter: 'var(--bar-glow)'
+                  }}
+                />
                 <defs>
                   <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
@@ -172,6 +206,20 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, isL
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <style jsx global>{`
+            .dark [data-chart] {
+              --axis-glow: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+              --bar-glow: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3));
+            }
+            [data-chart] {
+              --axis-glow: none;
+              --bar-glow: none;
+            }
+            .dark .recharts-cartesian-axis-tick text {
+              fill: #e2e8f0 !important;
+              filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+            }
+          `}</style>
         </div>
       </div>
     </div>
