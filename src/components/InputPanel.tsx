@@ -88,7 +88,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
             step="0.005"
             value={targetReturn}
             onChange={(e) => setTargetReturn(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gradient-to-r from-green-200 to-red-200 rounded-lg appearance-none cursor-pointer slider"
+            className="w-full h-2 bg-gradient-to-r from-green-200 to-red-200 rounded-lg appearance-none cursor-pointer custom-slider"
           />
           <div className="flex justify-between text-xs text-slate-500 mt-1">
             <span>2%</span>
@@ -122,8 +122,8 @@ export const InputPanel: React.FC<InputPanelProps> = ({
         )}
       </button>
 
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
+      <style>{`
+        .custom-slider::-webkit-slider-thumb {
           appearance: none;
           width: 20px;
           height: 20px;
@@ -134,7 +134,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
           border: 2px solid white;
         }
         
-        .slider::-moz-range-thumb {
+        .custom-slider::-moz-range-thumb {
           width: 20px;
           height: 20px;
           border-radius: 50%;
