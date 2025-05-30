@@ -29,20 +29,20 @@ export const InputPanel: React.FC<InputPanelProps> = ({
   };
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-      <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center">
+    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/20">
+      <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-6 flex items-center">
         <Sliders className="w-5 h-5 mr-2 text-indigo-500" />
         Configuration
       </h2>
 
       {/* CSV Upload */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-slate-700 mb-3">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
           Données des Actifs (CSV)
         </label>
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-indigo-200 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-300"
+          className="border-2 border-dashed border-indigo-200 dark:border-indigo-600 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-all duration-300"
         >
           <input
             ref={fileInputRef}
@@ -55,15 +55,15 @@ export const InputPanel: React.FC<InputPanelProps> = ({
           {csvData ? (
             <div className="flex items-center justify-center space-x-2">
               <FileText className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium text-green-700">{csvData.name}</span>
+              <span className="text-sm font-medium text-green-700 dark:text-green-400">{csvData.name}</span>
             </div>
           ) : (
             <div>
-              <Upload className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-600">
+              <Upload className="w-8 h-8 text-indigo-400 dark:text-indigo-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 Cliquez pour télécharger votre fichier CSV
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Format: Date, Asset1, Asset2, ...
               </p>
             </div>
@@ -73,7 +73,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
 
       {/* Target Return Slider */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-slate-700 mb-3">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
           Rendement Cible Annuel: {(targetReturn * 100).toFixed(1)}%
         </label>
         <div className="relative">
@@ -84,9 +84,9 @@ export const InputPanel: React.FC<InputPanelProps> = ({
             step="0.005"
             value={targetReturn}
             onChange={(e) => setTargetReturn(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gradient-to-r from-green-200 to-red-200 rounded-lg appearance-none cursor-pointer custom-slider"
+            className="w-full h-2 bg-gradient-to-r from-green-200 to-red-200 dark:from-green-300 dark:to-red-300 rounded-lg appearance-none cursor-pointer custom-slider"
           />
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
+          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
             <span>2%</span>
             <span>Conservateur</span>
             <span>Agressif</span>
@@ -101,7 +101,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
         disabled={!csvData || isOptimizing}
         className={`w-full py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
           !csvData || isOptimizing
-            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
             : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
         }`}
       >

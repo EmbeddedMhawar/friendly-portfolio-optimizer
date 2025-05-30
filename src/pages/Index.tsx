@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '../components/Header';
 import { InputPanel } from '../components/InputPanel';
@@ -8,14 +7,16 @@ import { StepIndicator } from '../components/StepIndicator';
 import { optimizePortfolio } from '../utils/portfolioOptimizer';
 import { parseCSV } from '../utils/csvParser';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeProvider } from '../contexts/ThemeContext';
 
-const Index = () => {
+const IndexContent = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [targetReturn, setTargetReturn] = useState(0.08);
   const [csvData, setCsvData] = useState<any>(null);
   const [parsedData, setParsedData] = useState<any>(null);
   const [results, setResults] = useState<any>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [advancedOptions, setAdvancedOptions] = useState<any>({});
   const { toast } = useToast();
 
   const handleCsvUpload = (file: File) => {
@@ -63,7 +64,10 @@ const Index = () => {
     setCurrentStep(2);
     
     try {
-      const result = optimizePortfolio(parsedData.prices, targetReturn);
+      console.log('Using advanced options:', advancedOptions);
+      
+      // Pass advanced options to the optimizer
+      const result = optimizePortfolio(parsedData.prices, targetReturn, advancedOptions);
       
       console.log('Optimization result:', result);
       
@@ -79,7 +83,8 @@ const Index = () => {
         expectedReturn: result.metrics.expectedReturn,
         volatility: result.metrics.volatility,
         sharpeRatio: result.metrics.expectedReturn / result.metrics.volatility,
-        constraintsMet: true
+        constraintsMet: true,
+        advancedOptions: advancedOptions
       };
 
       setResults(optimizationResults);
@@ -101,7 +106,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
       <Header />
       
       <div className="container mx-auto px-6 py-8 max-w-7xl">
@@ -122,11 +127,11 @@ const Index = () => {
             <div className="mt-6">
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full text-left px-4 py-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/80 transition-all duration-300 shadow-sm"
+                className="w-full text-left px-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-xl border border-white/20 dark:border-slate-700/20 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-300 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-700">Paramètres Avancés</span>
-                  <span className={`transform transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`}>
+                  <span className="font-medium text-slate-700 dark:text-slate-300">Paramètres Avancés</span>
+                  <span className={`transform transition-transform duration-200 text-slate-500 dark:text-slate-400 ${showAdvanced ? 'rotate-180' : ''}`}>
                     ↓
                   </span>
                 </div>
@@ -134,7 +139,7 @@ const Index = () => {
               
               {showAdvanced && (
                 <div className="mt-4">
-                  <AdvancedOptions />
+                  <AdvancedOptions onOptionsChange={setAdvancedOptions} />
                 </div>
               )}
             </div>
@@ -147,6 +152,14 @@ const Index = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <ThemeProvider>
+      <IndexContent />
+    </ThemeProvider>
   );
 };
 

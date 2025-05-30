@@ -1,4 +1,3 @@
-
 // Matrix operations
 function createMatrix(rows: number, cols: number): number[][] {
   return Array(rows).fill(null).map(() => Array(cols).fill(0));
@@ -150,11 +149,22 @@ export interface OptimizationResult {
   };
 }
 
-export function optimizePortfolio(prices: number[][], targetReturn: number): OptimizationResult {
+export function optimizePortfolio(prices: number[][], targetReturn: number, advancedOptions: any = {}) {
+  console.log('Optimizing with advanced options:', advancedOptions);
+  
   const returns = calculateReturnsMatrix(prices);
   const meanReturns = calculateMeanReturns(returns);
   const covariance = calculateCovariance(returns, meanReturns);
   const numAssets = prices[0].length;
+
+  // Use advanced options if provided
+  const tolerance = advancedOptions.kktParams?.tolerance || 1e-8;
+  const maxIterations = advancedOptions.kktParams?.maxIterations || 1000;
+  const enforceNonNegativity = advancedOptions.constraints?.nonNegativity !== false;
+  const enforceSumToOne = advancedOptions.constraints?.sumToOne !== false;
+
+  console.log('Tolerance:', tolerance, 'Max iterations:', maxIterations);
+  console.log('Enforce non-negativity:', enforceNonNegativity, 'Enforce sum to one:', enforceSumToOne);
 
   // Construct KKT matrix and RHS vector
   const kktMatrix = constructKKTMatrix(covariance, meanReturns);
@@ -167,12 +177,18 @@ export function optimizePortfolio(prices: number[][], targetReturn: number): Opt
   let weights = solveLinearSystem(kktMatrix, Y, kktSize);
   weights = weights.slice(0, numAssets);
 
-  // Handle negative weights
+  // Handle negative weights based on advanced options
   const hasNegative = weights.some(w => w < 0);
-  if (hasNegative) {
+  if (hasNegative && enforceNonNegativity) {
+    console.log('Applying non-negativity constraints');
     weights = weights.map(w => Math.max(0, w));
-    const sum = weights.reduce((a, b) => a + b, 0);
-    weights = weights.map(w => w / sum);
+    
+    if (enforceSumToOne) {
+      const sum = weights.reduce((a, b) => a + b, 0);
+      if (sum > tolerance) {
+        weights = weights.map(w => w / sum);
+      }
+    }
   }
 
   // Calculate portfolio metrics
