@@ -6,7 +6,7 @@ interface InputPanelProps {
   targetReturn: number;
   setTargetReturn: (value: number) => void;
   csvData: any;
-  setCsvData: (data: any) => void;
+  setCsvData: (file: File) => void;
   onOptimize: () => void;
   isOptimizing: boolean;
 }
@@ -24,11 +24,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setCsvData({
-        name: file.name,
-        size: file.size,
-        type: file.type
-      });
+      setCsvData(file);
     }
   };
 
@@ -55,7 +51,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
             onChange={handleFileUpload}
             className="hidden"
           />
-          
+
           {csvData ? (
             <div className="flex items-center justify-center space-x-2">
               <FileText className="w-5 h-5 text-green-500" />
@@ -133,7 +129,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
           box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
           border: 2px solid white;
         }
-        
+
         .custom-slider::-moz-range-thumb {
           width: 20px;
           height: 20px;

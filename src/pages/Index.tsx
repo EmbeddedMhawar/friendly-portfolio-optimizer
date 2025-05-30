@@ -5,34 +5,99 @@ import { InputPanel } from '../components/InputPanel';
 import { ResultsDashboard } from '../components/ResultsDashboard';
 import { AdvancedOptions } from '../components/AdvancedOptions';
 import { StepIndicator } from '../components/StepIndicator';
+import { optimizePortfolio } from '../utils/portfolioOptimizer';
+import { parseCSV } from '../utils/csvParser';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [targetReturn, setTargetReturn] = useState(0.08);
-  const [csvData, setCsvData] = useState(null);
-  const [results, setResults] = useState(null);
+  const [csvData, setCsvData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<any>(null);
+  const [results, setResults] = useState<any>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const { toast } = useToast();
+
+  const handleCsvUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csvContent = e.target?.result as string;
+        const parsed = parseCSV(csvContent);
+        
+        console.log('Parsed CSV data:', parsed);
+        
+        setParsedData(parsed);
+        setCsvData({
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+        
+        toast({
+          title: "CSV chargé avec succès",
+          description: `${parsed.assetNames.length} actifs détectés avec ${parsed.prices.length} périodes`,
+        });
+      } catch (error) {
+        console.error('Error parsing CSV:', error);
+        toast({
+          title: "Erreur de lecture CSV",
+          description: "Vérifiez le format de votre fichier",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleOptimize = () => {
-    // Simulate optimization process
+    if (!parsedData) {
+      toast({
+        title: "Aucune donnée disponible",
+        description: "Veuillez d'abord télécharger un fichier CSV",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCurrentStep(2);
-    setTimeout(() => {
-      const mockResults = {
-        weights: [
-          { asset: 'AAPL', weight: 0.35, color: '#6366f1' },
-          { asset: 'GOOGL', weight: 0.25, color: '#8b5cf6' },
-          { asset: 'MSFT', weight: 0.20, color: '#06b6d4' },
-          { asset: 'TSLA', weight: 0.15, color: '#10b981' },
-          { asset: 'AMZN', weight: 0.05, color: '#f59e0b' }
-        ],
-        expectedReturn: targetReturn,
-        volatility: 0.12,
-        sharpeRatio: 0.67,
+    
+    try {
+      const result = optimizePortfolio(parsedData.prices, targetReturn);
+      
+      console.log('Optimization result:', result);
+      
+      // Transform weights into the format expected by the UI
+      const weights = result.weights.map((weight, index) => ({
+        asset: parsedData.assetNames[index] || `Asset ${index + 1}`,
+        weight: weight,
+        color: `hsl(${(index * 360) / result.weights.length}, 70%, 60%)`
+      }));
+
+      const optimizationResults = {
+        weights,
+        expectedReturn: result.metrics.expectedReturn,
+        volatility: result.metrics.volatility,
+        sharpeRatio: result.metrics.expectedReturn / result.metrics.volatility,
         constraintsMet: true
       };
-      setResults(mockResults);
+
+      setResults(optimizationResults);
       setCurrentStep(3);
-    }, 2000);
+      
+      toast({
+        title: "Optimisation terminée",
+        description: `Portefeuille optimisé avec ${weights.length} actifs`,
+      });
+    } catch (error) {
+      console.error('Optimization error:', error);
+      setCurrentStep(1);
+      toast({
+        title: "Erreur d'optimisation",
+        description: "Vérifiez vos données et réessayez",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -49,7 +114,7 @@ const Index = () => {
               targetReturn={targetReturn}
               setTargetReturn={setTargetReturn}
               csvData={csvData}
-              setCsvData={setCsvData}
+              setCsvData={handleCsvUpload}
               onOptimize={handleOptimize}
               isOptimizing={currentStep === 2}
             />
